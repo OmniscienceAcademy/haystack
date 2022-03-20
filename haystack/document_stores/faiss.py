@@ -458,7 +458,7 @@ class FAISSDocumentStore(SQLDocumentStore):
 
     def train_index(
         self,
-        documents: Optional[Union[List[dict], List[Document]]],
+        documents: Optional[Union[List[dict], List[Document]]] = None,
         embeddings: Optional[np.ndarray] = None,
         index: Optional[str] = None,
     ):
@@ -473,14 +473,14 @@ class FAISSDocumentStore(SQLDocumentStore):
         :return: None
         """
         index = index or self.index
-        if embeddings and documents:
+        if (embeddings is not None) and documents:
             raise ValueError("Either pass `documents` or `embeddings`. You passed both.")
         if documents:
             document_objects = [Document.from_dict(d) if isinstance(d, dict) else d for d in documents]
             doc_embeddings = [doc.embedding for doc in document_objects]
             embeddings_for_train = np.array(doc_embeddings, dtype="float32")
             self.faiss_indexes[index].train(embeddings_for_train)
-        if embeddings:
+        if embeddings is not None:
             self.faiss_indexes[index].train(embeddings)
 
     def delete_all_documents(
